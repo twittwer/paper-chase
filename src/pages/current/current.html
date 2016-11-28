@@ -14,8 +14,13 @@
 
 
 <ion-content padding>
-current<br>
-  {{trueHeading}}<br>
-  {{headingAccuracy}}<br>
-  {{magneticHeading}}
+  current
+  <br/>
+  <div>
+    <div>{{myData.clickCount}} clicks</div>
+    <div>{{myData.updateCount}} updates</div>
+    <br/>
+    <div>{{myData.magneticHeading || "--"}} ({{myData.headingAccuracy || "--"}})</div>
+    <div>[{{myData.trueHeading || "--"}}]</div>
+  </div>
 </ion-content>

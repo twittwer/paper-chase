@@ -15,14 +15,21 @@ import { Subscription } from 'rxjs';
 } )
 export class CurrentPage {
 
-  public headingAccuracy: number;
-  public magneticHeading: number;
-  public trueHeading: number;
+  public myData: any;
 
   protected subscriptionDeviceOrientation: Subscription;
   protected subscriptionGeoLocation: Subscription;
 
   constructor ( public navCtrl: NavController ) {
+    console.log( 'constructor' );
+
+    this.myData = {
+      clickCount     : 0,
+      updateCount    : 0,
+      magneticHeading: null,
+      trueHeading    : null,
+      headingAccuracy: null
+    };
   }
 
   ionViewWillEnter () {
@@ -42,18 +49,21 @@ export class CurrentPage {
   }
 
   geoLocationUpdate ( data: Geolocation ) {
-    console.log( 'geoLocationUpdate', data, this );
-  }
-
-  orientationUpdate ( data: CompassHeading ) {
-    this.headingAccuracy = data.headingAccuracy;
-    this.magneticHeading = data.magneticHeading;
-    this.trueHeading = data.trueHeading;
-    console.log( 'orientationUpdate', data );
+    console.log( 'geoLocationUpdate', data );
   }
 
   subscriptionError ( error: any ) {
-    console.log( 'error:', error, this );
+    console.log( 'subscriptionError', error );
+  }
+
+
+  orientationUpdate ( data: CompassHeading ) {
+    console.log( 'orientationUpdate', data );
+
+    this.myData.updateCount++;
+    this.myData.magneticHeading = data.magneticHeading;
+    this.myData.trueHeading = data.trueHeading;
+    this.myData.headingAccuracy = data.headingAccuracy;
   }
 
 }
