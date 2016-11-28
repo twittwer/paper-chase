@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {NavController} from 'ionic-angular';
 import {DeviceOrientation, CompassHeading} from 'ionic-native';
+import {Subscription} from "rxjs";
 
 /*
  Generated class for the Current page.
@@ -14,22 +15,32 @@ import {DeviceOrientation, CompassHeading} from 'ionic-native';
 })
 export class CurrentPage {
 
+  public headingAccuracy: number;
+  public magneticHeading: number;
+  public trueHeading: number;
+
+  protected subscription: Subscription;
+
   constructor(public navCtrl: NavController) {
-
-    // Get the device current compass heading
-    DeviceOrientation.getCurrentHeading().then(
-      (data: CompassHeading) => console.log(data),
-      (error: any) => console.log(error)
-    );
-
-    // Watch the device compass heading change
-    var subscription = DeviceOrientation.watchHeading().subscribe(
-      (data: CompassHeading) => console.log(data)
-    );
-
-    // Stop watching heading change
-    subscription.unsubscribe();
   }
 
+  ionViewWillEnter() {
+    this.subscription = DeviceOrientation.watchHeading().subscribe(this.orientationUpdate, this.orientationError);
+  }
+
+  ionViewDidLeave() {
+    this.subscription.unsubscribe();
+  }
+
+  orientationUpdate(data: CompassHeading) {
+    this.headingAccuracy = data.headingAccuracy;
+    this.magneticHeading = data.magneticHeading;
+    this.trueHeading = data.trueHeading;
+    console.log(data);
+  }
+
+  orientationError(error: any) {
+    console.log(error);
+  }
 
 }
