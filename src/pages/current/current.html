@@ -14,13 +14,18 @@
 
 
 <ion-content padding>
-  current
-  <br/>
   <div>
-    <div>{{myData.clickCount}} clicks</div>
-    <div>{{myData.updateCount}} updates</div>
+    <h3>DeviceOrientation</h3>
+    <div>{{myData.deviceOrientationCount}} updates</div>
     <br/>
-    <div>{{myData.magneticHeading || "--"}} ({{myData.headingAccuracy || "--"}})</div>
-    <div>[{{myData.trueHeading || "--"}}]</div>
+    <div>{{myData.trueHeading || "--"}} ({{myData.headingAccuracy || "--"}})</div>
   </div>
+  <div>
+    <h3>GeoLocation</h3>
+    <div>{{myData.geoLocationCount}} updates</div>
+    <br/>
+    <div>{{myData.latitude || "--"}} X {{myData.longitude || "--"}} ({{myData.locationAccuracy || "--"}})</div>
+  </div>
+  <br/>
+  <button (click)="onClick()">CLICK ME</button>
 </ion-content>

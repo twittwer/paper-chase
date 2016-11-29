@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { CompassHeading, Geolocation, DeviceOrientation } from 'ionic-native';
+import { CompassHeading, Geolocation, DeviceOrientation, Geoposition } from 'ionic-native';
 import { Subscription } from 'rxjs';
 
 /*
@@ -15,7 +15,15 @@ import { Subscription } from 'rxjs';
 } )
 export class CurrentPage {
 
-  public myData: any;
+  public myData: {
+    deviceOrientationCount: number,
+    geoLocationCount: number,
+    trueHeading: number,
+    headingAccuracy: number,
+    latitude: number,
+    longitude: number,
+    locationAccuracy: number
+  };
 
   protected subscriptionDeviceOrientation: Subscription;
   protected subscriptionGeoLocation: Subscription;
@@ -24,23 +32,24 @@ export class CurrentPage {
     console.log( 'constructor' );
 
     this.myData = {
-      clickCount     : 0,
-      updateCount    : 0,
-      magneticHeading: null,
-      trueHeading    : null,
-      headingAccuracy: null
+      deviceOrientationCount: 0,
+      geoLocationCount      : 0,
+      trueHeading           : null,
+      headingAccuracy       : null,
+      latitude              : null,
+      longitude             : null,
+      locationAccuracy      : null
     };
   }
 
   ionViewWillEnter () {
     console.log( 'ionViewWillEnter' );
-    this.subscriptionDeviceOrientation = DeviceOrientation.watchHeading()
-      .subscribe( this.orientationUpdate.bind( this ), this.subscriptionError.bind( this ) );
+    this.subscriptionDeviceOrientation = DeviceOrientation.watchHeading( { frequency: 500 } )
+      .subscribe( this.deviceOrientationUpdate.bind( this ), this.subscriptionError.bind( this ) );
 
     this.subscriptionGeoLocation = Geolocation.watchPosition()
       .subscribe( this.geoLocationUpdate.bind( this ), this.subscriptionError.bind( this ) );
   }
-
 
   ionViewDidLeave () {
     console.log( 'ionViewDidLeave' );
@@ -48,22 +57,34 @@ export class CurrentPage {
     this.subscriptionGeoLocation.unsubscribe();
   }
 
-  geoLocationUpdate ( data: Geolocation ) {
-    console.log( 'geoLocationUpdate', data );
+  geoLocationUpdate ( geoposition: Geoposition ) {
+    console.log( 'geoLocationUpdate', geoposition );
+
+    this.myData.geoLocationCount++;
+    this.myData.latitude = geoposition.coords.latitude;
+    this.myData.longitude = geoposition.coords.longitude;
+    this.myData.locationAccuracy = geoposition.coords.accuracy;
   }
 
-  subscriptionError ( error: any ) {
-    console.log( 'subscriptionError', error );
-  }
+  deviceOrientationUpdate ( data: CompassHeading ) {
+    console.log( 'deviceOrientationUpdate', data );
 
-
-  orientationUpdate ( data: CompassHeading ) {
-    console.log( 'orientationUpdate', data );
-
-    this.myData.updateCount++;
-    this.myData.magneticHeading = data.magneticHeading;
+    this.myData.deviceOrientationCount++;
     this.myData.trueHeading = data.trueHeading;
     this.myData.headingAccuracy = data.headingAccuracy;
   }
 
+  subscriptionError ( error: any ) {
+    console.error( 'subscriptionError', error );
+  }
+
+  onClick () {
+    Geolocation.getCurrentPosition()
+      .then( ( geoposition: Geoposition ) => {
+        console.log( 'getCurrentPosition', geoposition );
+      } )
+      .catch( ( error ) => {
+        console.error( 'getCurrentPosition', error );
+      } );
+  }
 }
