@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { Path, Point } from './path-service';
-import { Observable, Observer } from 'rxjs';
 
 
 export interface UserPath extends Path {
