@@ -6,6 +6,9 @@ import { HomePage } from '../pages/home/home';
 import { TabsPage } from '../pages/tabs/tabs';
 import {HistoryPage} from "../pages/history/history";
 import {CurrentPage} from "../pages/current/current";
+import { UserService } from '../providers/user-service';
+import { PathService } from '../providers/path-service';
+import { PathListComponent } from '../components/path-list/path-list';
 
 @NgModule({
   declarations: [
@@ -14,7 +17,8 @@ import {CurrentPage} from "../pages/current/current";
     HomePage,
     TabsPage,
     HistoryPage,
-    CurrentPage
+    CurrentPage,
+    PathListComponent
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -26,8 +30,12 @@ import {CurrentPage} from "../pages/current/current";
     HomePage,
     TabsPage,
     HistoryPage,
-    CurrentPage
+    CurrentPage,
+    PathListComponent
   ],
-  providers: [{provide: ErrorHandler, useClass: IonicErrorHandler}]
+  providers: [
+    PathService,
+    UserService,
+    {provide: ErrorHandler, useClass: IonicErrorHandler}]
 })
 export class AppModule {}

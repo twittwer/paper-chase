@@ -1,7 +1,25 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { Coordinates } from 'ionic-native';
 
+
+export interface Path {
+  id: number,
+  name: string,
+  createdAt: Date,
+  updatedAt: Date,
+  points: Point[],
+}
+export interface Point {
+  id: number,
+  question: {
+    text: string,
+    options: string[],
+    answer: number,
+  },
+  coordinates: Coordinates
+}
 /*
  Generated class for the PathService provider.
 
@@ -10,8 +28,8 @@ import 'rxjs/add/operator/map';
  */
 @Injectable()
 export class PathService {
-  data: any;
-  dummyData = [
+  paths: Path[] = [];
+  dummyData: Path[] = [
     {
       id       : 1234,
       name     : "Die neue Route",
@@ -62,35 +80,18 @@ export class PathService {
       createdAt: new Date( 1480493021 ),
       updatedAt: new Date( 1480594021 ),
       points   : [
-        {}
       ]
     }
   ];
 
   constructor ( public http: Http ) {
-    this.data = null;
+    //http.get
+    setTimeout( () => {
+      this.paths.length = 0;
+      Array.prototype.push.apply(this.paths, this.dummyData);
+
+      console.log( 'PathService GET finished:', this.paths);
+    }, Math.random() * 1000 + 500 );
   }
 
-  load () {
-    if ( this.data ) {
-      return Promise.resolve( this.data );
-    }
-
-    return new Promise( resolve => {
-      setTimeout( () => {
-        this.data = this.dummyData;
-        resolve( this.data );
-      }, Math.random() * 1000 + 500 );
-    } );
-
-
-    /*return new Promise( resolve => {
-     this.http.get( 'path/to/data.json' )
-     .map( res => res.json() )
-     .subscribe( data => {
-     this.data = data;
-     resolve( this.data );
-     } );
-     } );*/
-  }
 }

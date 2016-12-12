@@ -1,0 +1,6 @@
+<ul>
+  <li *ngIf="!paths">loading...</li>
+  <li *ngFor="let path of paths">
+    ({{path.id}}){{path.name}}
+  </li>
+</ul>
