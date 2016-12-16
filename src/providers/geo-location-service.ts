@@ -2,8 +2,18 @@ import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs';
 import { Platform } from 'ionic-angular';
-import { Geolocation, Geoposition } from 'ionic-native';
+import { Geolocation, Geoposition, Coordinates } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
+import Utils from './utils';
+
+export interface Position {
+  latitude: number;
+  longitude: number;
+}
+
+export interface GeoLocationListener {
+  ( coords: Coordinates, updatedAt: number ): void;
+}
 
 /*
  GeoLocationService
@@ -106,37 +116,42 @@ export class GeoLocationService {
   }
 
   /**
-   * Calculate distance to a given point in meters.
+   * Calculate distance from current position to a given point in meters.
    *
-   * @param latitude {number}
-   * @param longitude {number}
+   * @param destination {Position}
    * @return {Promise<number>} Promise with distance to given coordinates (meter)
    */
-  public getDistance ( latitude: number, longitude: number ): Promise<number> {
+  public getCurrentDistance ( destination: Position ): Promise<number> {
     return new Promise( ( resolve, reject ) => {
       this.getCurrentPosition()
         .then( () => {
-          let currLatR = Utils.toRadians( this.coordinates.latitude );
-          let destLatR = Utils.toRadians( latitude );
-          let dLat = Utils.toRadians( latitude - this.coordinates.latitude );
-          let dLong = Utils.toRadians( longitude - this.coordinates.longitude );
-
-          let a1 = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 );
-          let a2 = Math.cos( currLatR ) * Math.cos( destLatR );
-          let a3 = Math.sin( dLong / 2 ) * Math.sin( dLong / 2 );
-          let a = a1 + a2 * a3;
-
-          let c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
-
-          let distance = c * 6371e3;
-
+          let distance = GeoLocationService.calcDistance(this.coordinates, destination);
           resolve( distance );
         } );
     } );
   }
 
-}
+  /**
+   * Calculate distance between two points in meters.
+   *
+   * @param from {Position}
+   * @param to {Position}
+   * @return {number} distance of given in meter
+   */
+  public static calcDistance(from: Position, to: Position) {
+    let currLatR = Utils.toRadians( from.latitude );
+    let destLatR = Utils.toRadians( to.latitude );
+    let dLat = Utils.toRadians( to.latitude - from.latitude );
+    let dLong = Utils.toRadians( to.longitude - from.longitude );
 
-export interface GeoLocationListener {
-  ( coords: Coordinates, updatedAt: number ): void;
+    let a1 = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 );
+    let a2 = Math.cos( currLatR ) * Math.cos( destLatR );
+    let a3 = Math.sin( dLong / 2 ) * Math.sin( dLong / 2 );
+    let a = a1 + a2 * a3;
+
+    let c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
+
+    return c * 6371e3;
+  }
+
 }

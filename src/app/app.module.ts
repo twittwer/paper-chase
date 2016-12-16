@@ -9,6 +9,7 @@ import {CurrentPage} from "../pages/current/current";
 import { UserService } from '../providers/user-service';
 import { PathService } from '../providers/path-service';
 import { PathListComponent } from '../components/path-list/path-list';
+import { GeoLocationService } from '../providers/geo-location-service';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { PathListComponent } from '../components/path-list/path-list';
   providers: [
     PathService,
     UserService,
+    GeoLocationService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}]
 })
 export class AppModule {}
