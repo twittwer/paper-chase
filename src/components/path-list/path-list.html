@@ -1,5 +1,5 @@
 <ul>
-  <li *ngIf="!paths">loading...</li>
+  <li *ngIf="paths  && paths.length == 0">loading...</li>
   <li *ngFor="let path of paths">
     ({{path.id}}){{path.name}}
   </li>
