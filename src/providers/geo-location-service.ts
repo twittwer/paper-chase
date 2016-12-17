@@ -11,13 +11,27 @@ export interface Position {
   longitude: number;
 }
 
-export interface GeoLocationListener {
+export interface GeoLocationWatcher {
   ( coords: Coordinates, updatedAt: number ): void;
 }
 
+export interface GeoDistanceWatcher {
+  ( distance: number ): void;
+}
+
+type GeoLocationWatcherRegistry = {
+  [id: string]: GeoLocationWatcher
+};
+
+type GeoDistanceWatcherRegistry = {
+  [id: string]: {
+    destination: Position;
+    watcher: GeoDistanceWatcher;
+  }
+};
+
 /*
  GeoLocationService
- TODO
  */
 @Injectable()
 export class GeoLocationService {
@@ -25,16 +39,18 @@ export class GeoLocationService {
   protected geoLocSubscription: Subscription;
   protected coordinates: Coordinates;
   protected updatedAt: number;
-  protected listeners: {[id: string]: GeoLocationListener};
-  protected listenersCounter: number;
+  protected locationWatcher: GeoLocationWatcherRegistry;
+  protected distanceWatcher: GeoDistanceWatcherRegistry;
+  protected watchCounter: number;
 
   constructor ( private platform: Platform ) {
     console.log( 'Init GeoLocationService ...' );
 
     this.coordinates = null;
     this.updatedAt = null;
-    this.listeners = {};
-    this.listenersCounter = 0;
+    this.locationWatcher = {};
+    this.distanceWatcher = {};
+    this.watchCounter = 0;
   }
 
   private subscribeGeoLocation () {
@@ -60,19 +76,26 @@ export class GeoLocationService {
     this.coordinates = geoposition.coords;
     this.updatedAt = geoposition.timestamp;
 
-    this.callListeners();
+    this.notifyWatchers();
   }
 
   private subscriptionError ( error: any ) {
     console.error( 'SubscriptionError @ GeoLocation', error );
   }
 
-  private callListeners (): void {
-    for ( let listenerId in this.listeners ) {
-      if ( !this.listeners.hasOwnProperty( listenerId ) ) {
+  private notifyWatchers (): void {
+    for ( let watcherId in this.locationWatcher ) {
+      if ( !this.locationWatcher.hasOwnProperty( watcherId ) ) {
         continue;
       }
-      this.listeners[ listenerId ]( this.coordinates, this.updatedAt );
+      this.locationWatcher[ watcherId ]( this.coordinates, this.updatedAt );
+    }
+    for ( let watcherId in this.distanceWatcher ) {
+      if ( !this.distanceWatcher.hasOwnProperty( watcherId ) ) {
+        continue;
+      }
+      this.distanceWatcher[ watcherId ].watcher(
+        GeoLocationService.calcDistance( this.coordinates, this.distanceWatcher[ watcherId ].destination ) );
     }
   }
 
@@ -95,21 +118,52 @@ export class GeoLocationService {
     } );
   }
 
-  public addListener ( callback: GeoLocationListener ): string {
+  public addLocationWatcher ( callback: GeoLocationWatcher ): string {
     let id = UUID.UUID();
-    this.listeners[ id ] = callback;
-    this.listenersCounter++;
-    if ( this.listenersCounter === 1 ) {
-      this.subscribeGeoLocation();
+    this.locationWatcher[ id ] = callback;
+    if ( this.addWatcher() && this.coordinates !== null ) {
+      callback( this.coordinates, this.updatedAt );
     }
     return id;
   }
 
-  public removeListener ( id: string ): void {
-    if ( this.listeners.hasOwnProperty( id ) ) {
-      delete this.listeners[ id ];
-      this.listenersCounter--;
-      if ( this.listenersCounter === 0 ) {
+  public addDistanceWatcher ( destination: Position, watcher: GeoDistanceWatcher ): string {
+    let id = UUID.UUID();
+    this.distanceWatcher[ id ] = {
+      destination: destination,
+      watcher    : watcher
+    };
+    if ( this.addWatcher() && this.coordinates !== null ) {
+      watcher( GeoLocationService.calcDistance( this.coordinates, destination ) );
+    }
+    return id;
+  }
+
+  /**
+   * @return {boolean} If subscription already exists
+   */
+  private addWatcher (): boolean {
+    this.watchCounter++;
+    if ( this.watchCounter === 1 ) {
+      this.subscribeGeoLocation();
+      return false;
+    }
+    return true;
+  }
+
+  public removeLocationWatcher ( id: string ): void {
+    this.removeWatcher( this.locationWatcher, id );
+  }
+
+  public removeDistanceWatcher ( id: string ): void {
+    this.removeWatcher( this.distanceWatcher, id );
+  }
+
+  private removeWatcher ( registry: GeoLocationWatcherRegistry|GeoDistanceWatcherRegistry, id: string ): void {
+    if ( registry.hasOwnProperty( id ) ) {
+      delete registry[ id ];
+      this.watchCounter--;
+      if ( this.watchCounter === 0 ) {
         this.unsubscribeGeoLocation();
       }
     }
@@ -125,7 +179,7 @@ export class GeoLocationService {
     return new Promise( ( resolve, reject ) => {
       this.getCurrentPosition()
         .then( () => {
-          let distance = GeoLocationService.calcDistance(this.coordinates, destination);
+          let distance = GeoLocationService.calcDistance( this.coordinates, destination );
           resolve( distance );
         } );
     } );
@@ -138,7 +192,7 @@ export class GeoLocationService {
    * @param to {Position}
    * @return {number} distance of given in meter
    */
-  public static calcDistance(from: Position, to: Position) {
+  public static calcDistance ( from: Position, to: Position ) {
     let currLatR = Utils.toRadians( from.latitude );
     let destLatR = Utils.toRadians( to.latitude );
     let dLat = Utils.toRadians( to.latitude - from.latitude );

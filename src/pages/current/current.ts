@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
-import { CompassHeading, Geolocation, Geoposition } from 'ionic-native';
-import { Subscription } from 'rxjs';
+import { Geolocation, Geoposition } from 'ionic-native';
 import { Position, GeoLocationService } from '../../providers/geo-location-service';
 
 /*
@@ -16,42 +15,41 @@ import { Position, GeoLocationService } from '../../providers/geo-location-servi
 } )
 export class CurrentPage {
 
-  public myData: {
-    deviceOrientationCount: number,
-    geoLocationCount: number,
-    trueHeading: number,
-    headingAccuracy: number,
+  public counter: {
+    geoLocation: number,
+    geoDistance: number
+  };
+  public myGeoLocation: {
     latitude: number,
     longitude: number,
     locationAccuracy: number
   };
   public myDistance: number;
 
-  protected subscriptionDeviceOrientation: Subscription;
-  protected subscriptionGeoLocation: Subscription;
-
-  private listenerId: string;
-  // private destination: Position = {
+  // public destination: Position = {
   //   latitude : 48.774063,
   //   longitude: 9.171182
   // };
-  private destination: Position = {
+  public destination: Position = {
     latitude : 48.774056,
     longitude: 9.204528
   };
+
+  private listenerIdLocation: string;
+  private listenerIdDistance: string;
 
   constructor ( public navCtrl: NavController, private geoLocationService: GeoLocationService,
                 private platform: Platform ) {
     console.log( 'constructor' );
 
-    this.myData = {
-      deviceOrientationCount: 0,
-      geoLocationCount      : 0,
-      trueHeading           : null,
-      headingAccuracy       : null,
-      latitude              : null,
-      longitude             : null,
-      locationAccuracy      : null
+    this.counter = {
+      geoLocation: 0,
+      geoDistance: 0
+    };
+    this.myGeoLocation = {
+      latitude        : null,
+      longitude       : null,
+      locationAccuracy: null
     };
     this.myDistance = 0;
   }
@@ -59,68 +57,25 @@ export class CurrentPage {
   ionViewDidEnter () {
     console.log( 'ionViewDidEnter' );
 
-    this.listenerId = this.geoLocationService.addListener( ( coords: Coordinates ) => {
-      this.myDistance = GeoLocationService.calcDistance( coords, this.destination );
-
-      this.myData.geoLocationCount++;
-      this.myData.latitude = coords.latitude;
-      this.myData.longitude = coords.longitude;
-      this.myData.locationAccuracy = coords.accuracy;
+    this.listenerIdLocation = this.geoLocationService.addLocationWatcher( ( coords: Coordinates ) => {
+      console.log( 'Current : GeoLocationUpdate' );
+      this.counter.geoLocation++;
+      this.myGeoLocation.latitude = coords.latitude;
+      this.myGeoLocation.longitude = coords.longitude;
+      this.myGeoLocation.locationAccuracy = coords.accuracy;
     } );
 
-    // this.platform.ready()
-    //   .then( () => {
-    //     this.subscriptionDeviceOrientation = DeviceOrientation.watchHeading( { frequency: 500 } )
-    //       .subscribe( this.deviceOrientationUpdate.bind( this ), this.subscriptionError.bind( this ) );
-    //
-    //     this.subscriptionGeoLocation = Geolocation.watchPosition()
-    //       .subscribe( this.geoLocationUpdate.bind( this ), this.subscriptionError.bind( this ) );
-    //   } );
+    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination, ( distance: number ) => {
+      console.log( 'Current : GeoDistanceUpdate' );
+      this.counter.geoDistance++;
+      this.myDistance = distance;
+    } );
   }
 
   ionViewWillLeave () {
     console.log( 'ionViewWillLeave' );
 
-    this.geoLocationService.removeListener( this.listenerId );
-
-    // this.subscriptionDeviceOrientation.unsubscribe();
-    // this.subscriptionGeoLocation.unsubscribe();
-  }
-
-  geoLocationUpdate ( geoposition: Geoposition ) {
-    console.log( 'geoLocationUpdate', geoposition );
-
-    this.myData.geoLocationCount++;
-    this.myData.latitude = geoposition.coords.latitude;
-    this.myData.longitude = geoposition.coords.longitude;
-    this.myData.locationAccuracy = geoposition.coords.accuracy;
-  }
-
-  deviceOrientationUpdate ( data: CompassHeading ) {
-    console.log( 'deviceOrientationUpdate', data );
-
-    this.myData.deviceOrientationCount++;
-    this.myData.trueHeading = data.trueHeading;
-    this.myData.headingAccuracy = data.headingAccuracy;
-  }
-
-  subscriptionError ( error: any ) {
-    console.error( 'subscriptionError', error );
-  }
-
-  onClick () {
-    Geolocation.getCurrentPosition()
-      .then( ( geoposition: Geoposition ) => {
-        console.log( 'getCurrentPosition', geoposition );
-        alert( 'getCurrentPosition \n' + geoposition );
-      } )
-      .catch( ( error ) => {
-        console.error( 'getCurrentPosition', error );
-        alert( 'getCurrentPosition \n' + error );
-      } );
-  }
-
-  calcDistance () {
-    this.myDistance = GeoLocationService.calcDistance( this.myData, this.destination );
+    this.geoLocationService.removeLocationWatcher( this.listenerIdLocation );
+    this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
   }
 }
