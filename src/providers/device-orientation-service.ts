@@ -3,6 +3,15 @@ import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs';
 import { Platform } from 'ionic-angular';
 import { DeviceOrientation, CompassHeading } from 'ionic-native';
+import { UUID } from 'angular2-uuid';
+
+export interface DeviceOrientationWatcher {
+  ( heading: number, headingAccuracy: number, updatedAt: number ): void;
+}
+
+type DeviceOrientationWatcherRegistry = {
+  [id: string]: DeviceOrientationWatcher
+};
 
 /*
  DeviceOrientationService
@@ -15,6 +24,8 @@ export class DeviceOrientationService {
   protected heading: number;
   protected headingAccuracy: number;
   protected updatedAt: number;
+  protected orientationWatcher: DeviceOrientationWatcherRegistry;
+  protected watchCounter: number;
 
   constructor ( private platform: Platform ) {
     console.log( 'Init DeviceOrientationService ...' );
@@ -55,8 +66,13 @@ export class DeviceOrientationService {
     console.error( 'SubscriptionError @ DeviceOrientation', error );
   }
 
-  // TODO: notify watchers
   private notifyWatchers (): void {
+    for ( let watcherId in this.orientationWatcher ) {
+      if ( !this.orientationWatcher.hasOwnProperty( watcherId ) ) {
+        continue;
+      }
+      this.orientationWatcher[ watcherId ]( this.heading, this.headingAccuracy, this.updatedAt );
+    }
   }
 
   public getCurrentOrientation (): Promise<CompassHeading> {
@@ -78,5 +94,40 @@ export class DeviceOrientationService {
     } );
   }
 
-  // TODO: watcher management
+  public addOrientationWatcher ( callback: DeviceOrientationWatcher ): string {
+    let id = UUID.UUID();
+    this.orientationWatcher[ id ] = callback;
+    if ( this.addWatcher() && this.heading !== null ) {
+      callback( this.heading, this.headingAccuracy, this.updatedAt );
+    }
+    return id;
+  }
+
+  /**
+   * @return {boolean} If subscription already exists
+   */
+  private addWatcher (): boolean {
+    this.watchCounter++;
+    if ( this.watchCounter === 1 ) {
+      this.subscribeDeviceOrientation();
+      return false;
+    }
+    return true;
+  }
+
+  public removeOrientationWatcher ( id: string ): void {
+    this.removeWatcher( this.orientationWatcher, id );
+  }
+
+  private removeWatcher ( registry: DeviceOrientationWatcherRegistry, id: string ): void {
+    if ( registry.hasOwnProperty( id ) ) {
+      delete registry[ id ];
+      this.watchCounter--;
+      if ( this.watchCounter === 0 ) {
+        this.unsubscribeDeviceOrientation();
+      }
+    }
+  }
+
+  // TODO: Calculation Magic
 }
