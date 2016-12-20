@@ -10,6 +10,7 @@ import { UserService } from '../providers/user-service';
 import { PathService } from '../providers/path-service';
 import { PathListComponent } from '../components/path-list/path-list';
 import { GeoLocationService } from '../providers/geo-location-service';
+import { DeviceOrientationService } from '../providers/device-orientation-service';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { GeoLocationService } from '../providers/geo-location-service';
     PathService,
     UserService,
     GeoLocationService,
+    DeviceOrientationService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}]
 })
 export class AppModule {}
