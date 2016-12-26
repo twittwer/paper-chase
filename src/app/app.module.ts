@@ -2,7 +2,7 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
-import { HomePage } from '../pages/home/home';
+import { RoutesPage } from '../pages/routes/routes';
 import { TabsPage } from '../pages/tabs/tabs';
 import {HistoryPage} from "../pages/history/history";
 import {CurrentPage} from "../pages/current/current";
@@ -16,7 +16,7 @@ import { DeviceOrientationService } from '../providers/device-orientation-servic
   declarations: [
     MyApp,
     AboutPage,
-    HomePage,
+    RoutesPage,
     TabsPage,
     HistoryPage,
     CurrentPage,
@@ -29,7 +29,7 @@ import { DeviceOrientationService } from '../providers/device-orientation-servic
   entryComponents: [
     MyApp,
     AboutPage,
-    HomePage,
+    RoutesPage,
     TabsPage,
     HistoryPage,
     CurrentPage,

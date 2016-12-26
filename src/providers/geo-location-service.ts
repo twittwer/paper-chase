@@ -30,8 +30,8 @@ type GeoDistanceWatcherRegistry = {
   }
 };
 
-/*
- GeoLocationService
+/**
+ * GeoLocationService
  */
 @Injectable()
 export class GeoLocationService {

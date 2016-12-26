@@ -1,14 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
-import { Geolocation, Geoposition } from 'ionic-native';
 import { Position, GeoLocationService } from '../../providers/geo-location-service';
 
-/*
- Generated class for the Current page.
-
- See http://ionicframework.com/docs/v2/components/#navigation for more info on
- Ionic pages and navigation.
- */
 @Component( {
   selector   : 'page-current',
   templateUrl: 'current.html'
@@ -26,10 +19,6 @@ export class CurrentPage {
   };
   public myDistance: number;
 
-  // public destination: Position = {
-  //   latitude : 48.774063,
-  //   longitude: 9.171182
-  // };
   public destination: Position = {
     latitude : 48.774056,
     longitude: 9.204528

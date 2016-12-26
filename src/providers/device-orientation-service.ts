@@ -13,9 +13,8 @@ type DeviceOrientationWatcherRegistry = {
   [id: string]: DeviceOrientationWatcher
 };
 
-/*
- DeviceOrientationService
- TODO
+/**
+ * DeviceOrientationService
  */
 @Injectable()
 export class DeviceOrientationService {

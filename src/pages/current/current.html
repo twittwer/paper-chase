@@ -1,19 +1,11 @@
-<!--
-  Generated template for the Current page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
-
   <ion-navbar>
-    <ion-title>current</ion-title>
+    <ion-title>Current Paper Chase</ion-title>
   </ion-navbar>
-
 </ion-header>
 
-
 <ion-content padding>
+
   <div>
     <h3>GeoLocation</h3>
     <div>{{counter.geoLocation}} updates</div>
@@ -29,4 +21,9 @@
     <div>You will reach your final destination in {{myDistance || "--"}} m.</div>
     <div>( {{destination.latitude || "--"}} : {{destination.longitude || "--"}} )</div>
   </div>
+  <hr/>
+  <div class="flex-container flex-center">
+    <ion-icon class="compass" ios="md-navigate" md="md-navigate"></ion-icon>
+  </div>
+
 </ion-content>
