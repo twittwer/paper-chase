@@ -170,6 +170,7 @@ export class DeviceOrientationService {
    */
   public calcDirection ( destination: GeoPoint ): number {
     // TODO: Calculation Magic
+    // DEBUG
     let direction = Math.floor( Math.random() * 359 );
     if ( direction % 2 === 0 ) {
       this.debugDirection = direction;

@@ -3,7 +3,6 @@ import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { Coordinates } from 'ionic-native';
 
-
 export interface Path {
   id: number,
   name: string,
@@ -11,6 +10,7 @@ export interface Path {
   updatedAt: Date,
   points: Point[],
 }
+
 export interface Point {
   id: number,
   question: {
@@ -20,14 +20,10 @@ export interface Point {
   },
   coordinates: Coordinates
 }
-/*
- Generated class for the PathService provider.
 
- See https://angular.io/docs/ts/latest/guide/dependency-injection.html
- for more info on providers and Angular 2 DI.
- */
 @Injectable()
 export class PathService {
+
   paths: Path[] = [];
   dummyData: Path[] = [
     {

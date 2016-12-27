@@ -9,19 +9,16 @@ export interface UserPath extends Path {
   finishedAt: Date,
   points: UserPoint[],
 }
+
 export interface UserPoint extends Point {
   status: 'right'|'wrong'|'pending',
 }
-/*
- Generated class for the PathService provider.
 
- See https://angular.io/docs/ts/latest/guide/dependency-injection.html
- for more info on providers and Angular 2 DI.
- */
 @Injectable()
 export class UserService {
-  paths: UserPath[] = [];
 
+  paths: UserPath[] = [];
+  currentPath: UserPath = null;
   dummyData = [
     {
       id        : 1235,
@@ -38,9 +35,9 @@ export class UserService {
     //http.get
     setTimeout( () => {
       this.paths.length = 0;
-      Array.prototype.push.apply(this.paths, this.dummyData);
+      Array.prototype.push.apply( this.paths, this.dummyData );
 
-      console.log( 'UserService GET finished:', this.paths);
+      console.log( 'UserService GET finished:', this.paths );
     }, Math.random() * 1000 + 500 );
   }
 
@@ -49,6 +46,33 @@ export class UserService {
     console.log( 'UserService POST to server:', paths );
 
     this.paths.length = 0;
-    Array.prototype.push.apply(this.paths, paths);
+    Array.prototype.push.apply( this.paths, paths );
+  }
+
+  addPath ( path: Path ) {
+    let points: UserPoint[] = [];
+    path.points.forEach( ( point: Point ) => {
+      points.push( {
+        id         : point.id,
+        coordinates: point.coordinates,
+        question   : point.question,
+        status     : 'pending'
+      } );
+    } );
+    let newPath: UserPath = {
+      id        : path.id,
+      name      : path.name,
+      createdAt : path.createdAt,
+      updatedAt : path.updatedAt,
+      startedAt : new Date(),
+      finishedAt: null,
+      points    : points
+    };
+    this.paths.push( newPath );
+    this.currentPath = newPath;
+  }
+
+  reactivatePath(path: UserPath) {
+    this.currentPath = path;
   }
 }
