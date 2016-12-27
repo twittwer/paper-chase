@@ -8,6 +8,7 @@ import Utils from './utils';
 import { GeoLocationWatcher, DistanceWatcher } from '../interfaces/GeoLocation';
 import { GeoPoint } from '../interfaces/GeoPoint';
 
+  ( distance: { km: number, angle: number } ): void;
 type GeoLocationWatcherRegistry = {
   [id: string]: GeoLocationWatcher
 };
@@ -194,8 +195,18 @@ export class GeoLocationService {
     let a = a1 + a2 * a3;
 
     let c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
+    let distance = c * 6371e3;
 
-    return c * 6371e3;
+    let y = Math.sin( dLong ) * Math.cos( destLatR );
+    let x = Math.cos( currLatR ) * Math.sin( destLatR ) - Math.sin( currLatR ) * Math.cos( destLatR ) * Math.cos( dLong );
+    let angleRadian = Math.atan2( y, x );
+
+    let angle = (Utils.toDegrees( angleRadian ) + 360) % 360;
+
+    return {
+      km   : distance,
+      angle: angle
+    };
   }
 
 }
