@@ -41,15 +41,19 @@ export class CurrentPage {
       this.locationAccuracy = coords.accuracy;
     } );
 
-    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination, ( distance: number ) => {
-      console.log( 'CurrentPage : DistanceUpdate' );
-      this.distance = distance;
-    } );
+    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination,
+      ( distance: number, angle: number ) => {
+        console.log( 'CurrentPage : DistanceUpdate' );
+        this.distance = distance;
+        // DEBUG
+        this.direction = angle;
+      } );
 
     this.listenerIdDirection = this.deviceOrientationService.addDirectionWatcher( this.destination,
       ( direction: number ) => {
         console.log( 'CurrentPage : DirectionUpdate' );
-        this.direction = direction;
+        // DEBUG
+        // this.direction = direction;
       } );
   }
 

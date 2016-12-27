@@ -5,10 +5,9 @@ import { Platform } from 'ionic-angular';
 import { Geolocation, Geoposition, Coordinates } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
 import Utils from './utils';
-import { GeoLocationWatcher, DistanceWatcher } from '../interfaces/GeoLocation';
+import { GeoLocationWatcher, DistanceWatcher, GapData } from '../interfaces/GeoLocation';
 import { GeoPoint } from '../interfaces/GeoPoint';
 
-  ( distance: { km: number, angle: number } ): void;
 type GeoLocationWatcherRegistry = {
   [id: string]: GeoLocationWatcher
 };
@@ -85,8 +84,8 @@ export class GeoLocationService {
       if ( !this.distanceWatcher.hasOwnProperty( watcherId ) ) {
         continue;
       }
-      this.distanceWatcher[ watcherId ].watcher(
-        GeoLocationService.calcDistance( this.coordinates, this.distanceWatcher[ watcherId ].destination ) );
+      let gapData = GeoLocationService.calcGap( this.coordinates, this.distanceWatcher[ watcherId ].destination );
+      this.distanceWatcher[ watcherId ].watcher( gapData.distance, gapData.angle );
     }
   }
 
@@ -125,7 +124,8 @@ export class GeoLocationService {
       watcher    : watcher
     };
     if ( this.addWatcher() && this.coordinates !== null ) {
-      watcher( GeoLocationService.calcDistance( this.coordinates, destination ) );
+      let gapData = GeoLocationService.calcGap( this.coordinates, destination );
+      watcher( gapData.distance, gapData.angle );
     }
     return id;
   }
@@ -161,29 +161,29 @@ export class GeoLocationService {
   }
 
   /**
-   * Calculate distance from current position to a given point in meters.
+   * Calculate distance and angle from current position to a given point in meters.
    *
    * @param destination {GeoPoint}
-   * @return {Promise<number>} Promise with distance to given coordinates (meter)
+   * @return {Promise<GapData>} Promise with distance (meter) and angle (degrees) to given coordinates
    */
-  public getCurrentDistance ( destination: GeoPoint ): Promise<number> {
+  public getCurrentGap ( destination: GeoPoint ): Promise<GapData> {
     return new Promise( ( resolve, reject ) => {
       this.getCurrentPosition()
         .then( () => {
-          let distance = GeoLocationService.calcDistance( this.coordinates, destination );
-          resolve( distance );
+          let gapData = GeoLocationService.calcGap( this.coordinates, destination );
+          resolve( gapData );
         } );
     } );
   }
 
   /**
-   * Calculate distance between two points in meters.
+   * Calculate distance and angle between two points in meters.
    *
    * @param from {GeoPoint}
    * @param to {GeoPoint}
-   * @return {number} distance of given in meter
+   * @return {GapData} distance (meter) and angle (degress) to destination
    */
-  public static calcDistance ( from: GeoPoint, to: GeoPoint ) {
+  public static calcGap ( from: GeoPoint, to: GeoPoint ): GapData {
     let currLatR = Utils.toRadians( from.latitude );
     let destLatR = Utils.toRadians( to.latitude );
     let dLat = Utils.toRadians( to.latitude - from.latitude );
@@ -198,14 +198,15 @@ export class GeoLocationService {
     let distance = c * 6371e3;
 
     let y = Math.sin( dLong ) * Math.cos( destLatR );
-    let x = Math.cos( currLatR ) * Math.sin( destLatR ) - Math.sin( currLatR ) * Math.cos( destLatR ) * Math.cos( dLong );
+    let x = Math.cos( currLatR ) * Math.sin( destLatR ) - Math.sin( currLatR ) * Math.cos( destLatR ) * Math.cos(
+        dLong );
     let angleRadian = Math.atan2( y, x );
 
     let angle = (Utils.toDegrees( angleRadian ) + 360) % 360;
 
     return {
-      km   : distance,
-      angle: angle
+      distance: distance,
+      angle   : angle
     };
   }
 
