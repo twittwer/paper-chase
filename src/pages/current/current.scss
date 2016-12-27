@@ -1,6 +1,11 @@
 page-current {
 
-  .compass {
-    transform: scale(5) rotate(45deg);
+  ion-content {
+    text-align: center;
+
+    #compass-container {
+      height: 5em;
+      padding-top: 2em;
+    }
   }
 }

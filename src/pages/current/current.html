@@ -1,29 +1,34 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Current Paper Chase</ion-title>
+    <ion-buttons end>
+      <span>
+        {{locationAccuracy | number:"1.0-0" || "--"}}m
+        <ion-icon name="locate"></ion-icon>
+      </span>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
 
-  <div>
-    <h3>GeoLocation</h3>
-    <div>{{counter.geoLocation}} updates</div>
-    <br/>
-    <div>
-      {{myGeoLocation.latitude || "--"}} : {{myGeoLocation.longitude || "--"}}
-      &nbsp;({{myGeoLocation.locationAccuracy || "--"}} m)
-    </div>
-  </div>
-  <hr/>
-  <div>
-    <h3>Distance</h3>
-    <div>You will reach your final destination in {{myDistance || "--"}} m.</div>
-    <div>( {{destination.latitude || "--"}} : {{destination.longitude || "--"}} )</div>
-  </div>
-  <hr/>
-  <div class="flex-container flex-center">
-    <ion-icon class="compass" ios="md-navigate" md="md-navigate"></ion-icon>
-  </div>
+  <ion-card>
+    <ion-card-header>
+      Direction
+    </ion-card-header>
+    <ion-card-content>
+      <div id="compass-container" class="flex-container flex-center">
+        <compass [scale]="4" [rotation]="direction"></compass>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-card-header>
+      Distance
+    </ion-card-header>
+    <ion-card-content>
+      {{(distance/1000) | number:"1.0-2" || "--"}} km
+    </ion-card-content>
+  </ion-card>
 
 </ion-content>

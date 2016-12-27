@@ -11,6 +11,7 @@ import { PathService } from '../providers/path-service';
 import { PathListComponent } from '../components/path-list/path-list';
 import { GeoLocationService } from '../providers/geo-location-service';
 import { DeviceOrientationService } from '../providers/device-orientation-service';
+import { CompassComponent } from '../components/compass/compass';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { DeviceOrientationService } from '../providers/device-orientation-servic
     TabsPage,
     HistoryPage,
     CurrentPage,
-    PathListComponent
+    PathListComponent,
+    CompassComponent
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -32,8 +34,7 @@ import { DeviceOrientationService } from '../providers/device-orientation-servic
     RoutesPage,
     TabsPage,
     HistoryPage,
-    CurrentPage,
-    PathListComponent
+    CurrentPage
   ],
   providers: [
     PathService,

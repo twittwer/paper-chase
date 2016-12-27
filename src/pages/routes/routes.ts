@@ -8,7 +8,7 @@ import { Path, PathService } from '../../providers/path-service';
 } )
 export class RoutesPage {
 
-  private paths: Path[];
+  public paths: Path[];
 
   constructor ( public navCtrl: NavController, private pathService: PathService ) {
     this.paths = [];

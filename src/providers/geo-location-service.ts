@@ -5,19 +5,8 @@ import { Platform } from 'ionic-angular';
 import { Geolocation, Geoposition, Coordinates } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
 import Utils from './utils';
-
-export interface Position {
-  latitude: number;
-  longitude: number;
-}
-
-export interface GeoLocationWatcher {
-  ( coords: Coordinates, updatedAt: number ): void;
-}
-
-export interface GeoDistanceWatcher {
-  ( distance: number ): void;
-}
+import { GeoLocationWatcher, DistanceWatcher } from '../interfaces/GeoLocation';
+import { GeoPoint } from '../interfaces/GeoPoint';
 
 type GeoLocationWatcherRegistry = {
   [id: string]: GeoLocationWatcher
@@ -25,8 +14,8 @@ type GeoLocationWatcherRegistry = {
 
 type GeoDistanceWatcherRegistry = {
   [id: string]: {
-    destination: Position;
-    watcher: GeoDistanceWatcher;
+    destination: GeoPoint;
+    watcher: DistanceWatcher;
   }
 };
 
@@ -48,6 +37,7 @@ export class GeoLocationService {
 
     this.coordinates = null;
     this.updatedAt = null;
+
     this.locationWatcher = {};
     this.distanceWatcher = {};
     this.watchCounter = 0;
@@ -127,7 +117,7 @@ export class GeoLocationService {
     return id;
   }
 
-  public addDistanceWatcher ( destination: Position, watcher: GeoDistanceWatcher ): string {
+  public addDistanceWatcher ( destination: GeoPoint, watcher: DistanceWatcher ): string {
     let id = UUID.UUID();
     this.distanceWatcher[ id ] = {
       destination: destination,
@@ -172,10 +162,10 @@ export class GeoLocationService {
   /**
    * Calculate distance from current position to a given point in meters.
    *
-   * @param destination {Position}
+   * @param destination {GeoPoint}
    * @return {Promise<number>} Promise with distance to given coordinates (meter)
    */
-  public getCurrentDistance ( destination: Position ): Promise<number> {
+  public getCurrentDistance ( destination: GeoPoint ): Promise<number> {
     return new Promise( ( resolve, reject ) => {
       this.getCurrentPosition()
         .then( () => {
@@ -188,11 +178,11 @@ export class GeoLocationService {
   /**
    * Calculate distance between two points in meters.
    *
-   * @param from {Position}
-   * @param to {Position}
+   * @param from {GeoPoint}
+   * @param to {GeoPoint}
    * @return {number} distance of given in meter
    */
-  public static calcDistance ( from: Position, to: Position ) {
+  public static calcDistance ( from: GeoPoint, to: GeoPoint ) {
     let currLatR = Utils.toRadians( from.latitude );
     let destLatR = Utils.toRadians( to.latitude );
     let dLat = Utils.toRadians( to.latitude - from.latitude );

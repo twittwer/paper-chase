@@ -4,13 +4,18 @@ import { Subscription } from 'rxjs';
 import { Platform } from 'ionic-angular';
 import { DeviceOrientation, CompassHeading } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
-
-export interface DeviceOrientationWatcher {
-  ( heading: number, headingAccuracy: number, updatedAt: number ): void;
-}
+import { DeviceOrientationWatcher, DirectionWatcher } from '../interfaces/DeviceOrientation';
+import { GeoPoint } from '../interfaces/GeoPoint';
 
 type DeviceOrientationWatcherRegistry = {
   [id: string]: DeviceOrientationWatcher
+};
+
+type DeviceDirectionWatcherRegistry = {
+  [id: string]: {
+    destination: GeoPoint;
+    watcher: DirectionWatcher;
+  }
 };
 
 /**
@@ -24,6 +29,7 @@ export class DeviceOrientationService {
   protected headingAccuracy: number;
   protected updatedAt: number;
   protected orientationWatcher: DeviceOrientationWatcherRegistry;
+  protected directionWatcher: DeviceDirectionWatcherRegistry;
   protected watchCounter: number;
 
   constructor ( private platform: Platform ) {
@@ -32,6 +38,10 @@ export class DeviceOrientationService {
     this.heading = null;
     this.headingAccuracy = null;
     this.updatedAt = null;
+
+    this.orientationWatcher = {};
+    this.directionWatcher = {};
+    this.watchCounter = 0;
   }
 
   private subscribeDeviceOrientation () {
@@ -72,6 +82,13 @@ export class DeviceOrientationService {
       }
       this.orientationWatcher[ watcherId ]( this.heading, this.headingAccuracy, this.updatedAt );
     }
+    for ( let watcherId in this.directionWatcher ) {
+      if ( !this.directionWatcher.hasOwnProperty( watcherId ) ) {
+        continue;
+      }
+      this.directionWatcher[ watcherId ].watcher(
+        this.calcDirection( this.directionWatcher[ watcherId ].destination ) );
+    }
   }
 
   public getCurrentOrientation (): Promise<CompassHeading> {
@@ -102,6 +119,18 @@ export class DeviceOrientationService {
     return id;
   }
 
+  public addDirectionWatcher ( destination: GeoPoint, watcher: DirectionWatcher ): string {
+    let id = UUID.UUID();
+    this.directionWatcher[ id ] = {
+      destination: destination,
+      watcher    : watcher
+    };
+    if ( this.addWatcher() && this.heading !== null ) {
+      watcher( this.calcDirection( destination ) );
+    }
+    return id;
+  }
+
   /**
    * @return {boolean} If subscription already exists
    */
@@ -118,7 +147,12 @@ export class DeviceOrientationService {
     this.removeWatcher( this.orientationWatcher, id );
   }
 
-  private removeWatcher ( registry: DeviceOrientationWatcherRegistry, id: string ): void {
+  public removeDirectionWatcher ( id: string ): void {
+    this.removeWatcher( this.directionWatcher, id );
+  }
+
+  private removeWatcher ( registry: DeviceOrientationWatcherRegistry|DeviceDirectionWatcherRegistry,
+                          id: string ): void {
     if ( registry.hasOwnProperty( id ) ) {
       delete registry[ id ];
       this.watchCounter--;
@@ -128,5 +162,18 @@ export class DeviceOrientationService {
     }
   }
 
-  // TODO: Calculation Magic
+  private debugDirection: number = 0;
+
+  /**
+   * @param destination {GeoPoint}
+   * @return {number} degrees to destination point (e.g. 90 at the right; 270 at the left)
+   */
+  public calcDirection ( destination: GeoPoint ): number {
+    // TODO: Calculation Magic
+    let direction = Math.floor( Math.random() * 359 );
+    if ( direction % 2 === 0 ) {
+      this.debugDirection = direction;
+    }
+    return this.debugDirection;
+  }
 }
