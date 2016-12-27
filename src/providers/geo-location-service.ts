@@ -16,7 +16,7 @@ export interface GeoLocationWatcher {
 }
 
 export interface GeoDistanceWatcher {
-  ( distance: number ): void;
+  ( distance: { km: number, angle: number } ): void;
 }
 
 type GeoLocationWatcherRegistry = {
@@ -192,7 +192,7 @@ export class GeoLocationService {
    * @param to {Position}
    * @return {number} distance of given in meter
    */
-  public static calcDistance ( from: Position, to: Position ) {
+  public static calcDistance ( from: Position, to: Position ): { km: number, angle: number } {
     let currLatR = Utils.toRadians( from.latitude );
     let destLatR = Utils.toRadians( to.latitude );
     let dLat = Utils.toRadians( to.latitude - from.latitude );
@@ -204,8 +204,18 @@ export class GeoLocationService {
     let a = a1 + a2 * a3;
 
     let c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
+    let distance = c * 6371e3;
 
-    return c * 6371e3;
+    let y = Math.sin( dLong ) * Math.cos( destLatR );
+    let x = Math.cos( currLatR ) * Math.sin( destLatR ) - Math.sin( currLatR ) * Math.cos( destLatR ) * Math.cos( dLong );
+    let angleRadian = Math.atan2( y, x );
+
+    let angle = (Utils.toDegrees( angleRadian ) + 360) % 360;
+
+    return {
+      km   : distance,
+      angle: angle
+    };
   }
 
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
 import { Position, GeoLocationService } from '../../providers/geo-location-service';
+import { DeviceOrientationService } from '../../providers/device-orientation-service';
 
 @Component( {
   selector   : 'page-current',
@@ -17,7 +18,7 @@ export class CurrentPage {
     longitude: number,
     locationAccuracy: number
   };
-  public myDistance: number;
+  public myDistance: { km: number, angle: number };
 
   public destination: Position = {
     latitude : 48.774056,
@@ -26,9 +27,10 @@ export class CurrentPage {
 
   private listenerIdLocation: string;
   private listenerIdDistance: string;
+  private listenerIdOrientation: string;
 
   constructor ( public navCtrl: NavController, private geoLocationService: GeoLocationService,
-                private platform: Platform ) {
+                private deviceOrientationService: DeviceOrientationService, private platform: Platform ) {
     console.log( 'constructor' );
 
     this.counter = {
@@ -40,7 +42,10 @@ export class CurrentPage {
       longitude       : null,
       locationAccuracy: null
     };
-    this.myDistance = 0;
+    this.myDistance = {
+      km   : 0,
+      angle: 0
+    };
   }
 
   ionViewDidEnter () {
@@ -52,13 +57,19 @@ export class CurrentPage {
       this.myGeoLocation.latitude = coords.latitude;
       this.myGeoLocation.longitude = coords.longitude;
       this.myGeoLocation.locationAccuracy = coords.accuracy;
+
     } );
 
-    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination, ( distance: number ) => {
+    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination, ( distance: { km: number, angle: number } ) => {
       console.log( 'Current : GeoDistanceUpdate' );
       this.counter.geoDistance++;
       this.myDistance = distance;
     } );
+
+    /*this.listenerIdOrientation = this.deviceOrientationService.addOrientationWatcher(
+     ( heading: number, headingAccuracy: number, updatedAt: number ) => {
+     console.log( heading, headingAccuracy, updatedAt );
+     } );*/
   }
 
   ionViewWillLeave () {
@@ -66,5 +77,6 @@ export class CurrentPage {
 
     this.geoLocationService.removeLocationWatcher( this.listenerIdLocation );
     this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
+    this.deviceOrientationService.removeOrientationWatcher( this.listenerIdOrientation );
   }
 }
