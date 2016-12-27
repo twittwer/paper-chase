@@ -5,8 +5,8 @@ import { Platform } from 'ionic-angular';
 import { Geolocation, Geoposition, Coordinates } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
 import Utils from './utils';
-import { GeoLocationWatcher, DistanceWatcher, GapData } from '../interfaces/GeoLocation';
-import { GeoPoint } from '../interfaces/GeoPoint';
+import { GeoLocationWatcher, DistanceWatcher, GapData } from '../interfaces/geo-location';
+import { GeoPoint } from '../interfaces/geo-point';
 
 type GeoLocationWatcherRegistry = {
   [id: string]: GeoLocationWatcher

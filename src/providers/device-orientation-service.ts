@@ -4,8 +4,8 @@ import { Subscription } from 'rxjs';
 import { Platform } from 'ionic-angular';
 import { DeviceOrientation, CompassHeading } from 'ionic-native';
 import { UUID } from 'angular2-uuid';
-import { DeviceOrientationWatcher, DirectionWatcher } from '../interfaces/DeviceOrientation';
-import { GeoPoint } from '../interfaces/GeoPoint';
+import { DeviceOrientationWatcher, DirectionWatcher } from '../interfaces/device-orientation';
+import { GeoPoint } from '../interfaces/geo-point';
 
 type DeviceOrientationWatcherRegistry = {
   [id: string]: DeviceOrientationWatcher
