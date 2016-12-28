@@ -2,85 +2,118 @@ import { Path } from './path-service';
 
 export const dummyChases: Path[] = [
   {
-    id       : 1234,
+    id       : 1111,
     name     : "Die neue Route",
     createdAt: new Date( 1480593021 ),
     updatedAt: new Date( 1480594021 ),
     points   : [
       {
-        id         : 123,
+        id         : 111,
         question   : {
-          text   : "Wie ist die Hausnummer vom gelben Haus?",
+          text   : "Welches Insekt lebt in diesen Straßen?",
           options: [
-            "32",
-            "33",
-            "34",
-            "35"
+            "Schmetterling",
+            "Bienen",
+            "Ameisen"
           ],
-          answer : 2,
+          answer : 0,
         },
         coordinates: {
-          latitude : 48.774063,
-          longitude: 9.171182
+          latitude : 53.121109,
+          longitude: 9.772811
         }
       },
       {
-        id         : 124,
+        id         : 112,
         question   : {
-          text   : "Wie ist die Hausnummer vom roten Haus?",
+          text   : "Welche roten Beeren gibt es in diesen Straßen?",
           options: [
-            "22",
-            "21",
-            "20",
-            "23"
+            "Schlehen",
+            "Hagebutten",
+            "Holunder",
+            "Vogelbeeren"
           ],
           answer : 2,
         },
         coordinates: {
-          latitude : 48.773580,
-          longitude: 9.172050
+          latitude : 53.123915,
+          longitude: 9.776018
+        }
+      },
+      {
+        id         : 113,
+        question   : {
+          text   : "Aus welchem Material besteht die Fassade des Supermarkt?",
+          options: [
+            "Beton",
+            "Wellblech",
+            "Ziegelstein",
+            "Holz"
+          ],
+          answer : 2,
+        },
+        coordinates: {
+          latitude : 53.119993,
+          longitude: 9.782068
         }
       }
     ]
   },
   {
-    id       : 1235,
+    id       : 2222,
     name     : "History of Stuttgart",
     createdAt: new Date( 1480493021 ),
     updatedAt: new Date( 1480594021 ),
     points   : [
       {
-        id         : 123,
+        id         : 221,
         question   : {
-          text   : "Welches wichtige Gebäude befindet sich an diesem Platz?",
+          text   : "Welches Gebäude befindet sich an diesem Platz?",
           options: [
-            "32",
-            "33",
-            "34",
-            "35"
+            "Das Schloss",
+            "Das Rathaus",
+            "Die SWR Station",
+            "Das Stadion"
           ],
-          answer : 2,
+          answer : 1,
         },
         coordinates: {
-          latitude : 48.774063,
-          longitude: 9.171182
+          latitude : 48.775223,
+          longitude: 9.178362
         }
       },
       {
-        id         : 124,
+        id         : 222,
         question   : {
-          text   : "Wie ist die Hausnummer vom roten Haus?",
+          text   : "Welches Gebäude befindet sich an diesem Platz?",
           options: [
-            "22",
-            "21",
-            "20",
-            "23"
+            "Das Gerber",
+            "Die Schwabengalerie",
+            "Das Rathaus",
+            "Das Schloss"
           ],
-          answer : 2,
+          answer : 3,
         },
         coordinates: {
-          latitude : 48.773580,
-          longitude: 9.172050
+          latitude : 48.778350,
+          longitude: 9.180615
+        }
+      },
+      {
+        id         : 223,
+        question   : {
+          text   : "Welches wichtige Gebäude befindet sich in deiner Nähe?",
+          options: [
+            "Die Liederhalle",
+            "Die Schwabengalerie",
+            "Die Staatsgalerie",
+            "Das Schloss"
+          ],
+          answer : 0,
+        },
+        coordinates: {
+          latitude : 48.779326,
+          longitude: 9.185832
         }
       }
     ]

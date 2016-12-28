@@ -17,8 +17,8 @@ export class CurrentPage {
   public pointingDirection: number;
   public destinationDirection: number;
 
-  protected question: Question;
-  protected questionAnswer: number;
+  public question: Question;
+  public questionAnswer: number;
 
   private listenerIdLocation: string;
   private listenerIdDistance: string;
