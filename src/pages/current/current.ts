@@ -79,7 +79,12 @@ export class CurrentPage {
       this.question = null;
       this.questionAnswer = null;
     } else {
-      this.question = this.userService.active.path.points[ this.userService.active.index.activePoint ].question;
+      if ( this.userService.active.index.activePoint < this.userService.active.counter.points ) {
+        this.question = this.userService.active.path.points[ this.userService.active.index.activePoint ].question;
+      } else {
+        this.userService.stopCurrentPath();
+        this.navCtrl.parent.select( 2 );
+      }
     }
   }
 
