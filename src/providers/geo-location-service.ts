@@ -161,10 +161,10 @@ export class GeoLocationService {
   }
 
   /**
-   * Calculate distance and angle from current position to a given point in meters.
+   * Calculate distance and destinationDirection from current position to a given point in meters.
    *
    * @param destination {GeoPoint}
-   * @return {Promise<GapData>} Promise with distance (meter) and angle (degrees) to given coordinates
+   * @return {Promise<GapData>} Promise with distance (meter) and destinationDirection (degrees) to given coordinates
    */
   public getCurrentGap ( destination: GeoPoint ): Promise<GapData> {
     return new Promise( ( resolve, reject ) => {
@@ -177,11 +177,11 @@ export class GeoLocationService {
   }
 
   /**
-   * Calculate distance and angle between two points in meters.
+   * Calculate distance and destinationDirection between two points in meters.
    *
    * @param from {GeoPoint}
    * @param to {GeoPoint}
-   * @return {GapData} distance (meter) and angle (degress) to destination
+   * @return {GapData} distance (meter) and destinationDirection (degress) to destination
    */
   public static calcGap ( from: GeoPoint, to: GeoPoint ): GapData {
     let currLatR = Utils.toRadians( from.latitude );

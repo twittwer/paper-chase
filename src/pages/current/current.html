@@ -17,8 +17,9 @@
       Direction
     </ion-card-header>
     <ion-card-content>
+      <span *ngIf="!pointingDirection">Nord</span><!-- wenn keine Deviceorientation gefunden wurde benutzte 0 als Device Orientation. Somit ist Norden immer oben-->
       <div id="compass-container" class="flex-container flex-center">
-        <compass [scale]="4" [rotation]="direction"></compass>
+        <compass [scale]="4" [rotation]="pointingDirection || destinationDirection"></compass>
       </div>
     </ion-card-content>
   </ion-card>
