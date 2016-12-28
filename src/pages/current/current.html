@@ -13,34 +13,75 @@
 <ion-content padding>
 
   <ion-card>
-    <ion-card-header>
-      Your Paper Chase
+    <ion-card-header *ngIf="userService.active">
+      {{userService.active.path.name || "--"}}
     </ion-card-header>
-    <ion-card-content *ngIf="userService.currentPath">
-      {{userService.currentPath.name || "--"}}
+    <ion-card-content *ngIf="userService.active">
+      <ion-badge color="primary">
+        <ion-icon name="checkmark"></ion-icon>
+        {{userService.active.counter.pointsRight}}
+      </ion-badge>
+      <ion-badge color="secondary">
+        <ion-icon name="filing"></ion-icon>
+        {{userService.active.counter.pointsPending}}
+      </ion-badge>
+      <ion-badge color="danger">
+        <ion-icon name="close"></ion-icon>
+        {{userService.active.counter.pointsWrong}}
+      </ion-badge>
     </ion-card-content>
-    <ion-card-content *ngIf="!userService.currentPath">
-      Start a new paper chase or continue a old one.
+    <ion-card-content *ngIf="!userService.active">
+      <button ion-button outline
+              (click)="navCtrl.parent.select( 0 )">
+        Start a new paper chase.
+      </button>
     </ion-card-content>
   </ion-card>
-  <ion-card>
+  <ion-card *ngIf="userService.active">
     <ion-card-header>
       Direction
     </ion-card-header>
     <ion-card-content>
-      <!-- if there is no DeviceOrientation use 0 as default, Somit ist Norden immer oben-->
+      <!-- if there is no DeviceOrientation use 0 as default, so north is always on top -->
       <span *ngIf="!pointingDirection">N</span>
       <div id="compass-container" class="flex-container flex-center">
         <compass [scale]="4" [rotation]="pointingDirection || destinationDirection"></compass>
       </div>
     </ion-card-content>
   </ion-card>
-  <ion-card>
+  <ion-card *ngIf="userService.active && question">
+    <ion-card-header>
+      {{question.text}}
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list radio-group [(ngModel)]="questionAnswer">
+        <ion-item *ngFor="let option of question.options; let optionIndex = index">
+          <ion-label>{{option}}</ion-label>
+          <ion-radio value="{{optionIndex}}"></ion-radio>
+        </ion-item>
+      </ion-list>
+      <div>
+        <button ion-button (click)="answerQuestion()">Reply</button>
+        <br/>Answer: {{questionAnswer}}
+      </div>
+    </ion-card-content>
+  </ion-card>
+  <ion-card *ngIf="userService.active">
     <ion-card-header>
       Distance
     </ion-card-header>
     <ion-card-content>
-      {{(distance/1000) | number:"1.0-2" || "--"}} km
+      {{distance | number:"1.0-2" || "--"}} m
+    </ion-card-content>
+  </ion-card>
+  <ion-card *ngIf="userService.active">
+    <ion-card-content>
+      <button ion-button small outline color="danger"
+              (click)="userService.stopCurrentPath()">
+        Stop Paper Chase
+      </button>
+      <br/>
+      <button (click)="showQuestion(true)">Emulate Arrival</button>
     </ion-card-content>
   </ion-card>
 

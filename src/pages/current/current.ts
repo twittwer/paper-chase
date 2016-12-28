@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, Platform } from 'ionic-angular';
+import { NavController, Platform, ToastController } from 'ionic-angular';
 import { GeoLocationService } from '../../providers/geo-location-service';
-import { GeoPoint } from '../../interfaces/geo-point';
 import { DeviceOrientationService } from '../../providers/device-orientation-service';
 import { UserService } from '../../providers/user-service';
+import { Question } from '../../providers/path-service';
+import { ToastOptions } from 'ionic-native';
 
 @Component( {
   selector   : 'page-current',
@@ -11,21 +12,19 @@ import { UserService } from '../../providers/user-service';
 } )
 export class CurrentPage {
 
-  public destination: GeoPoint = {
-    latitude : 48.774056,
-    longitude: 9.204528
-  };
-
   public locationAccuracy: number;
   public distance: number;
   public pointingDirection: number;
   public destinationDirection: number;
 
+  protected question: Question;
+  protected questionAnswer: number;
+
   private listenerIdLocation: string;
   private listenerIdDistance: string;
-  private listenerIdDirection: string;
+  private listenerIdOrientation: string;
 
-  constructor ( public navCtrl: NavController, private platform: Platform,
+  constructor ( public navCtrl: NavController, private platform: Platform, private toastController: ToastController,
                 private geoLocationService: GeoLocationService,
                 private deviceOrientationService: DeviceOrientationService, public userService: UserService ) {
     console.log( 'constructor' );
@@ -34,6 +33,9 @@ export class CurrentPage {
     this.distance = 0;
     this.destinationDirection = 0;
     this.pointingDirection = 0;
+
+    this.question = null;
+    this.questionAnswer = null;
   }
 
   ionViewDidEnter () {
@@ -44,18 +46,24 @@ export class CurrentPage {
       this.locationAccuracy = coords.accuracy;
     } );
 
-    this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( this.destination,
-      ( distance: number, angle: number ) => {
-        console.log( 'CurrentPage : DistanceUpdate' );
-        this.distance = distance;
-        this.destinationDirection = angle;
-      } );
+    if ( this.userService.active ) {
 
-    this.listenerIdDirection = this.deviceOrientationService.addOrientationWatcher(
-      ( heading: number, headingAccuracy: number, updatedAt: number ) => {
-        console.log( 'CurrentPage : DirectionUpdate' );
-        this.pointingDirection = this.destinationDirection - heading;
-      } );
+      let destination = this.userService.active.path.points[ this.userService.active.index.activePoint ].coordinates;
+
+      this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( destination,
+        ( distance: number, angle: number ) => {
+          console.log( 'CurrentPage : DistanceUpdate' );
+          this.distance = distance;
+          this.destinationDirection = angle;
+          this.showQuestion( (this.distance < 20) );
+        } );
+
+      this.listenerIdOrientation = this.deviceOrientationService.addOrientationWatcher(
+        ( heading: number, headingAccuracy: number, updatedAt: number ) => {
+          console.log( 'CurrentPage : DirectionUpdate' );
+          this.pointingDirection = this.destinationDirection - heading;
+        } );
+    }
   }
 
   ionViewWillLeave () {
@@ -63,6 +71,53 @@ export class CurrentPage {
 
     this.geoLocationService.removeLocationWatcher( this.listenerIdLocation );
     this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
-    this.deviceOrientationService.removeDirectionWatcher( this.listenerIdDirection );
+    this.deviceOrientationService.removeOrientationWatcher( this.listenerIdOrientation );
+  }
+
+  public showQuestion ( show: boolean ) {
+    if ( !show ) {
+      this.question = null;
+      this.questionAnswer = null;
+    } else {
+      this.question = this.userService.active.path.points[ this.userService.active.index.activePoint ].question;
+    }
+  }
+
+  public answerQuestion () {
+    let toastOptions: ToastOptions = {
+      duration: 3000
+    };
+    if ( !this.questionAnswer ) {
+      toastOptions.message = 'Please select an answer.';
+      toastOptions.position = 'bottom';
+    } else {
+      if ( this.questionAnswer == this.question.answer ) {
+        this.userService.active.path.points[ this.userService.active.index.activePoint ].status = 'right';
+        this.userService.active.counter.pointsRight++;
+        toastOptions.message = 'Congratulation, this was the right answer.';
+      } else {
+        this.userService.active.path.points[ this.userService.active.index.activePoint ].status = 'wrong';
+        this.userService.active.counter.pointsWrong++;
+        toastOptions.message = 'Sadly this answer was wrong.';
+      }
+      this.userService.active.counter.pointsPending--;
+      toastOptions.position = 'middle';
+      this.showQuestion( false );
+      this.userService.active.index.activePoint++;
+    }
+
+    this.toastController.create( toastOptions )
+      .present();
+
+    if ( this.userService.active.index.activePoint === this.userService.active.counter.points ) {
+      this.toastController.create( {
+        message : 'Congratulation, you finished the paper chase.',
+        duration: 3000,
+        position: 'middle'
+      } )
+        .present();
+      this.userService.stopCurrentPath();
+      this.navCtrl.parent.select( 2 );
+    }
   }
 }

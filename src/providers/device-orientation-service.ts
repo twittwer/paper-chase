@@ -165,12 +165,12 @@ export class DeviceOrientationService {
   private debugDirection: number = 0;
 
   /**
+   * @deprecated
    * @param destination {GeoPoint}
    * @return {number} degrees to destination point (e.g. 90 at the right; 270 at the left)
    */
   public calcDirection ( destination: GeoPoint ): number {
     // TODO: Calculation Magic
-    // DEBUG
     let direction = Math.floor( Math.random() * 359 );
     if ( direction % 2 === 0 ) {
       this.debugDirection = direction;
