@@ -17,7 +17,8 @@ export class CurrentPage {
 
   public locationAccuracy: number;
   public distance: number;
-  public direction: number;
+  public pointingDirection: number;
+  public destinationDirection: number;
 
   private listenerIdLocation: string;
   private listenerIdDistance: string;
@@ -30,7 +31,8 @@ export class CurrentPage {
 
     this.locationAccuracy = null;
     this.distance = 0;
-    this.direction = 0;
+    this.destinationDirection = 0;
+    this.pointingDirection = 0;
   }
 
   ionViewDidEnter () {
@@ -45,15 +47,13 @@ export class CurrentPage {
       ( distance: number, angle: number ) => {
         console.log( 'CurrentPage : DistanceUpdate' );
         this.distance = distance;
-        // DEBUG
-        this.direction = angle;
+        this.destinationDirection = angle;
       } );
 
-    this.listenerIdDirection = this.deviceOrientationService.addDirectionWatcher( this.destination,
-      ( direction: number ) => {
+    this.listenerIdDirection = this.deviceOrientationService.addOrientationWatcher(
+      ( heading: number, headingAccuracy: number, updatedAt: number ) => {
         console.log( 'CurrentPage : DirectionUpdate' );
-        // DEBUG
-        // this.direction = direction;
+        this.pointingDirection = this.destinationDirection - heading;
       } );
   }
 
