@@ -14,10 +14,22 @@
 
   <ion-card>
     <ion-card-header>
+      Your Paper Chase
+    </ion-card-header>
+    <ion-card-content *ngIf="userService.currentPath">
+      {{userService.currentPath.name || "--"}}
+    </ion-card-content>
+    <ion-card-content *ngIf="!userService.currentPath">
+      Start a new paper chase or continue a old one.
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-card-header>
       Direction
     </ion-card-header>
     <ion-card-content>
-      <span *ngIf="!pointingDirection">N</span><!-- wenn keine Deviceorientation gefunden wurde benutzte 0 als Device Orientation. Somit ist Norden immer oben-->
+      <!-- if there is no DeviceOrientation use 0 as default, Somit ist Norden immer oben-->
+      <span *ngIf="!pointingDirection">N</span>
       <div id="compass-container" class="flex-container flex-center">
         <compass [scale]="4" [rotation]="pointingDirection || destinationDirection"></compass>
       </div>

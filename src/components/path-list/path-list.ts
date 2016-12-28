@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { UserPath } from '../../providers/user-service';
+import { UserPath, UserService } from '../../providers/user-service';
 import { Path } from '../../providers/path-service';
 
 @Component( {
@@ -8,10 +8,21 @@ import { Path } from '../../providers/path-service';
 } )
 export class PathListComponent {
 
-  @Input()
-  paths: UserPath[]|Path[] = [];
+  @Input() paths: UserPath[]|Path[] = [];
+  @Input() type: 'Path'|'UserPath' = 'Path';
+  @Input() readonly: boolean = false;
 
-  constructor () {
+  constructor ( private userService: UserService ) {
   }
 
+  onPathSelect ( path: UserPath|Path ) {
+    if ( this.readonly ) {
+      return;
+    }
+    if ( this.type === 'Path' ) {
+      this.userService.addPath( path );
+    } else if ( this.type === 'UserPath' ) {
+      this.userService.reactivatePath( <UserPath>path );
+    }
+  }
 }

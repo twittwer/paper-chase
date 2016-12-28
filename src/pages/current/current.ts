@@ -3,6 +3,7 @@ import { NavController, Platform } from 'ionic-angular';
 import { GeoLocationService } from '../../providers/geo-location-service';
 import { GeoPoint } from '../../interfaces/geo-point';
 import { DeviceOrientationService } from '../../providers/device-orientation-service';
+import { UserService } from '../../providers/user-service';
 
 @Component( {
   selector   : 'page-current',
@@ -26,7 +27,7 @@ export class CurrentPage {
 
   constructor ( public navCtrl: NavController, private platform: Platform,
                 private geoLocationService: GeoLocationService,
-                private deviceOrientationService: DeviceOrientationService ) {
+                private deviceOrientationService: DeviceOrientationService, public userService: UserService ) {
     console.log( 'constructor' );
 
     this.locationAccuracy = null;
