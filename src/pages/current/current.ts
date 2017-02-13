@@ -46,9 +46,28 @@ export class CurrentPage {
       this.locationAccuracy = coords.accuracy;
     } );
 
+    this.updateLocationListeners();
+  }
+
+  ionViewWillLeave () {
+    console.log( 'CurrentPage: ionViewWillLeave' );
+
+    this.geoLocationService.removeLocationWatcher( this.listenerIdLocation );
+    this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
+    this.deviceOrientationService.removeOrientationWatcher( this.listenerIdOrientation );
+  }
+
+  private updateLocationListeners () {
     if ( this.userService.active ) {
 
       let destination = this.userService.active.path.points[ this.userService.active.index.activePoint ].coordinates;
+
+      if ( this.listenerIdDistance ) {
+        this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
+      }
+      if ( this.listenerIdOrientation ) {
+        this.deviceOrientationService.removeOrientationWatcher( this.listenerIdOrientation );
+      }
 
       this.listenerIdDistance = this.geoLocationService.addDistanceWatcher( destination,
         ( distance: number, angle: number ) => {
@@ -64,14 +83,6 @@ export class CurrentPage {
           this.pointingDirection = this.destinationDirection - heading;
         } );
     }
-  }
-
-  ionViewWillLeave () {
-    console.log( 'CurrentPage: ionViewWillLeave' );
-
-    this.geoLocationService.removeLocationWatcher( this.listenerIdLocation );
-    this.geoLocationService.removeDistanceWatcher( this.listenerIdDistance );
-    this.deviceOrientationService.removeOrientationWatcher( this.listenerIdOrientation );
   }
 
   public showQuestion ( show: boolean ) {
@@ -109,6 +120,7 @@ export class CurrentPage {
       toastOptions.position = 'middle';
       this.showQuestion( false );
       this.userService.active.index.activePoint++;
+      this.updateLocationListeners();
     }
 
     this.toastController.create( toastOptions )
